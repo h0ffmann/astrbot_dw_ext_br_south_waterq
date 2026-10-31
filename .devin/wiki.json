@@ -1,0 +1,55 @@
+{
+  "repo_notes": [
+    {
+      "content": "This repository is an extension for the AstrBot plugin astrbot_plugin_disaster_warning. The host plugin is in a different repository. The extension is not a standalone program. The repository root is the extension root, and the host calls setup(api) in extension.py."
+    },
+    {
+      "content": "The extension data is for reference only. It is not an official warning. Each page about alerts must keep this statement. A result can be some days old, because each result comes from a water sample. Do not tell a reader that a beach is safe because no message came."
+    },
+    {
+      "content": "The first poll of each state records a baseline and sends no message. A message means that a point changed. The absence of a message does not mean that a point is suitable. The extension sends no result with a sample older than 90 days or with no known sample date."
+    },
+    {
+      "content": "Dates: the IAT layer stores dates at midnight in Brasília time (03:00 UTC), and the layer states this time zone. FEPAM and IMA send dates with no time."
+    },
+    {
+      "content": "Do not document .claude/skills/asd-ste100. It is a vendored skill for contributors. It is not part of the extension. The .host directory is a local copy of the host and is not in the repository."
+    }
+  ],
+  "pages": [
+    {
+      "title": "Overview",
+      "purpose": "Explain what the extension does, the states and agencies that it covers, the host plugin that it needs, and the limits of the data. Use README.md and meta.json."
+    },
+    {
+      "title": "Installation and Configuration",
+      "purpose": "Document the manual installation, the rule that the directory name must be the same as the extension id, and each setting with its default. Use README.md, settings.py and extension.py."
+    },
+    {
+      "title": "Architecture",
+      "purpose": "Show how the modules work together: setup in extension.py registers the source, the presenter and one poller for each state. Show the data flow from a feed to an event envelope. Use extension.py, pollers.py and extension.yaml."
+    },
+    {
+      "title": "State Providers",
+      "parent": "Architecture",
+      "purpose": "Document the provider interface, and how FEPAM, IMA and IAT differ. Include why SC asks for samples only for changed points, and how PR finds the last campaign. Use the providers directory and docs/brazil-water-quality-sources.md."
+    },
+    {
+      "title": "Change Detection",
+      "parent": "Architecture",
+      "purpose": "Document the baseline, the rules for a new unsuitable bulletin and a recovery, the 90-day limit, and the restore after a failed poll. Use tracking.py and pollers.py."
+    },
+    {
+      "title": "Messages and Languages",
+      "purpose": "Document the message text, the locale files and the rule that zh-CN must have all keys. Use presenter.py, envelopes.py and the locale directory."
+    },
+    {
+      "title": "Data Sources",
+      "purpose": "Describe each agency, the criterion of CONAMA 274/2000, the season, and the limits of each feed. Use meta.json and docs/brazil-water-quality-sources.md."
+    },
+    {
+      "title": "Development and Testing",
+      "purpose": "Document the just commands, the Nix shell, the pinned host, the test files, the mock page and the release zip. Use justfile, flake.nix, pyproject.toml, scripts and the tests directory."
+    }
+  ]
+}

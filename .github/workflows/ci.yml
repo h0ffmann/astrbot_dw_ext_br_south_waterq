@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: just check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the extension
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.10'
+
+      - name: Install the tools
+        run: pip install uv rust-just
+
+      - name: Set up the environment
+        run: just setup
+
+      - name: Run all checks
+        run: just check
+
+      - name: Make the release zip
+        run: just package
+
+  nix:
+    name: just check in the Nix shell
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the extension
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31.11.3
+
+      - name: Set up the environment
+        run: nix develop --command just setup
+
+      - name: Run all checks
+        run: nix develop --command just check

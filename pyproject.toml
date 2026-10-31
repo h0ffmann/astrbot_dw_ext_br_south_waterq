@@ -1,0 +1,70 @@
+[project]
+name = "astrbot_dw_ext_br_south_waterq"
+version = "0.1.0"
+description = "Bathing water quality alerts for the South of Brazil. An extension of astrbot_plugin_disaster_warning."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MPL-2.0" }
+dependencies = []  # The extension uses only the standard library and the host API.
+
+[tool.uv]
+package = false  # The host loads the repository root. Do not install it.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--strict-markers -p no:cacheprovider"
+pythonpath = ["tests"]
+markers = ["live: calls the real FEPAM, IMA and IAT services. Set DW_LIVE_TESTS=1 to run."]
+
+[tool.coverage.run]
+branch = true
+source = ["."]
+omit = ["tests/*", "scripts/*", "dist/*", ".claude/*", ".host/*", ".venv/*"]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
+skip_covered = true
+
+[tool.mypy]
+files = ["*.py", "providers/*.py"]
+python_version = "3.10"
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py310"
+# Do not change the vendored files.
+extend-exclude = [".claude", ".host", "dist"]
+
+[tool.ruff.lint]
+# The strict rules are for the extension code. Other code has only the format check.
+exclude = ["tests/**", "scripts/**"]
+select = [
+    "E", "F", "W",  # pycodestyle and pyflakes (the ruff defaults)
+    "B",            # bugbear: likely bugs
+    "C4",           # comprehensions
+    "C90",          # mccabe complexity
+    "SIM",          # code that you can make simpler
+    "RET",          # return statements
+    "ARG",          # arguments that the code does not use
+    "PL",           # pylint: too many arguments, branches and statements; magic values
+    "PIE", "PERF",  # unnecessary code and slow patterns
+    "ERA",          # code in comments
+    "BLE",          # blind except
+    "TRY",          # exception handling
+    "N",            # naming
+    "UP",           # syntax for the target Python version
+    "RUF",          # ruff-specific rules
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 8
+
+[tool.ruff.lint.pylint]
+max-args = 5
+max-branches = 8
+max-statements = 30

@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+.host/
+dist/
+.coverage
+.hypothesis/
+.mypy_cache/

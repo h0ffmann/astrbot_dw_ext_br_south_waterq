@@ -48,20 +48,22 @@ class BulletinState:
     def changes(self, points: list[dict], today: date | None = None) -> list[dict]:
         """Return the points with a new unsuitable bulletin or a recovery."""
         today = today or datetime.now(BRT).date()
-        out = []
         # A point can be in a feed two times. The last row gives the one result.
         # Without this, the two results replace each other at each poll.
-        for p in {point["key"]: point for point in points}.values():
-            if p["status"] not in SEVERITY:
-                continue  # Not collected or unknown: keep the last known state
-            key = _state_key(p, today)
-            prev = self._seen.get(p["key"])
-            self._seen[p["key"]] = key
-            if self._ready and key[1] != PAST and _is_news(prev, key):
-                out.append(p)
+        latest = {point["key"]: point for point in points}.values()
+        news = [
+            p for p in latest if p["status"] in SEVERITY and self._is_change(p, today)
+        ]
         if points:
             self._ready = True
-        return out
+        return news
+
+    def _is_change(self, point: dict, today: date) -> bool:
+        """Store the result of a point. Return True if the result is news."""
+        key = _state_key(point, today)
+        prev = self._seen.get(point["key"])
+        self._seen[point["key"]] = key
+        return self._ready and key[1] != PAST and _is_news(prev, key)
 
     def snapshot(self) -> tuple[dict, bool]:
         """Return a copy of the state."""

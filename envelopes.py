@@ -11,16 +11,10 @@ SOURCE = f"{ID}_balneabilidade"
 PRESENTER_KEY = f"{ID}_weather"
 
 
-def build_envelope(api, point: dict, source_label: str, now: datetime | None = None):
-    """Build the event envelope for a common point.
-
-    The event time is the detection time, not the sample date.
-    The host time rule drops events older than 1 h.
-    """
-    m = api.models
-    now = now or datetime.now(timezone.utc)
+def _metadata(point: dict, source_label: str) -> dict:
+    """Return the event metadata of a common point."""
     status, sample = point["status"], point["sample_date"]
-    metadata = {
+    return {
         "severity_level": SEVERITY[status],
         "hazard": "water_quality",
         "status": status,
@@ -36,9 +30,26 @@ def build_envelope(api, point: dict, source_label: str, now: datetime | None = N
         "ecoli": point.get("ecoli"),
         "source_label": source_label,
     }
+
+
+def _event_id(point: dict) -> str:
+    """Return the event id. The id has the sample date, or the bulletin if no date."""
+    sample = point["sample_date"]
     tag = f"{sample:%Y%m%d}" if sample else point["bulletin"]
+    return f"{ID}_{point['uf'].lower()}_{point['key']}_{tag}_{point['status']}"
+
+
+def build_envelope(api, point: dict, source_label: str, now: datetime | None = None):
+    """Build the event envelope for a common point.
+
+    The event time is the detection time, not the sample date.
+    The host time rule drops events older than 1 h.
+    """
+    m = api.models
+    now = now or datetime.now(timezone.utc)
+    metadata = _metadata(point, source_label)
     identity = m.EventIdentity(
-        event_id=f"{ID}_{point['uf'].lower()}_{point['key']}_{tag}_{status}",
+        event_id=_event_id(point),
         source_id=SOURCE,
         event_type="weather_alarm",
         provider_family="extension",
@@ -46,7 +57,7 @@ def build_envelope(api, point: dict, source_label: str, now: datetime | None = N
         published_at=now,
     )
     event = m.WeatherEvent(
-        title=api.t(f"title.{status}"),
+        title=api.t(f"title.{point['status']}"),
         headline=api.t(
             "headline",
             beach=metadata["beach"] or "-",
